@@ -146,56 +146,51 @@ class _AnimatedNotchBottomBarState extends State<AnimatedNotchBottomBar> with Si
                   currentIndex = widget.notchBottomBarController.index;
                 }
 
-                return ClipRRect(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: widget.removeMargins ? 22.0 : 8),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: <Widget>[
-                        BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: widget.showBlurBottomBar ? widget.blurFilterX : 0.0,
-                            sigmaY: widget.showBlurBottomBar ? widget.blurFilterY : 0.0,
-                          ),
-                          child: Opacity(
-                            opacity: widget.showBlurBottomBar ? widget.blurOpacity : 1,
-                            child: CustomPaint(
-                              size: Size(_screenWidth, height),
-                              painter: BottomBarPainter(
-                                  position: _itemPosByScrollPosition(scrollPosition),
-                                  color: widget.color,
-                                  showShadow: widget.showShadow,
-                                  notchColor: widget.notchColor),
-                            ),
+                return  Stack(
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: widget.showBlurBottomBar ? widget.blurFilterX : 0.0,
+                        sigmaY: widget.showBlurBottomBar ? widget.blurFilterY : 0.0,
+                      ),
+                      child: Opacity(
+                        opacity: widget.showBlurBottomBar ? widget.blurOpacity : 1,
+                        child: CustomPaint(
+                          size: Size(_screenWidth, height),
+                          painter: BottomBarPainter(
+                              position: _itemPosByScrollPosition(scrollPosition),
+                              color: widget.color,
+                              showShadow: widget.showShadow,
+                              notchColor: widget.notchColor),
+                        ),
+                      ),
+                    ),
+                    for (var i = 0; i < widget.bottomBarItems.length; i++) ...[
+                      if (i == currentIndex && (_animationController.value == 1.0 || _isInitial))
+                        Positioned(
+                          top: widget.removeMargins ? -kCircleMargin / 2 : kTopMargin,
+                          left: kCircleRadius - kCircleMargin / 2 + _itemPosByScrollPosition(scrollPosition),
+                          child: BottomBarActiveItem(
+                            i,
+                            itemWidget: widget.bottomBarItems[i].activeItem,
+                            scrollPosition: scrollPosition,
+                            onTap: widget.onTap,
                           ),
                         ),
-                        for (var i = 0; i < widget.bottomBarItems.length; i++) ...[
-                          if (i == currentIndex && (_animationController.value == 1.0 || _isInitial))
-                            Positioned(
-                              top: widget.removeMargins ? -kCircleMargin / 2 : kTopMargin,
-                              left: kCircleRadius - kCircleMargin / 2 + _itemPosByScrollPosition(scrollPosition),
-                              child: BottomBarActiveItem(
-                                i,
-                                itemWidget: widget.bottomBarItems[i].activeItem,
-                                scrollPosition: scrollPosition,
-                                onTap: widget.onTap,
-                              ),
-                            ),
-                          if (i != currentIndex)
-                            Positioned(
-                              top: kMargin + (kHeight - kCircleRadius * 2) / 2,
-                              left: kCircleMargin + _itemPosByIndex(i),
-                              child: BottomBarInActiveItem(i,
-                                  itemWidget: widget.bottomBarItems[i].inActiveItem,
-                                  label: widget.bottomBarItems[i].itemLabel, onTap: (selectedIndex) {
-                                widget.notchBottomBarController.jumpTo(selectedIndex);
-                                widget.onTap.call(selectedIndex);
-                              }, showLabel: widget.showLabel, labelStyle: widget.itemLabelStyle),
-                            ),
-                        ],
-                      ],
-                    ),
-                  ),
+                      if (i != currentIndex)
+                        Positioned(
+                          top: kMargin + (kHeight - kCircleRadius * 2) / 2,
+                          left: kCircleMargin + _itemPosByIndex(i),
+                          child: BottomBarInActiveItem(i,
+                              itemWidget: widget.bottomBarItems[i].inActiveItem,
+                              label: widget.bottomBarItems[i].itemLabel, onTap: (selectedIndex) {
+                            widget.notchBottomBarController.jumpTo(selectedIndex);
+                            widget.onTap.call(selectedIndex);
+                          }, showLabel: widget.showLabel, labelStyle: widget.itemLabelStyle),
+                        ),
+                    ],
+                  ],
                 );
               },
             ),

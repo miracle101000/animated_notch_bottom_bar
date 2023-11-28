@@ -39,6 +39,7 @@ class BottomBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+     canvas.drawColor(Colors.transparent, BlendMode.clear);
     _drawBar(canvas, size);
     _drawFloatingCircle(canvas);
   }
@@ -76,14 +77,14 @@ class BottomBarPainter extends CustomPainter {
         const Offset(kTopRadius, kTopRadius),
         radius: const Radius.circular(kTopRadius),
       )
-      ..lineTo(right, bottom - kBottomRadius)
+      ..lineTo(right, bottom)
       ..relativeArcToPoint(
         const Offset(-kBottomRadius, kBottomRadius),
-        radius: const Radius.circular(kBottomRadius),
+        radius: Radius.zero,
       )
       ..lineTo(left + kBottomRadius, bottom)
       ..relativeArcToPoint(
-        const Offset(-kBottomRadius, -kBottomRadius),
+        const Offset(-kBottomRadius, 0),
         radius: const Radius.circular(kBottomRadius),
       )
       ..lineTo(left, top + kTopRadius)
@@ -115,5 +116,63 @@ class BottomBarPainter extends CustomPainter {
       canvas..drawShadow(path, _shadowColor, 5.0, true);
     }
     canvas.drawPath(path, _notchPaint);
+  }
+}
+
+class MyClipper extends CustomClipper<Path> {
+  final double position;
+
+  MyClipper({required this.position});
+
+  @override
+  Path getClip(Size size) {
+    final double left = kMargin;
+    final double right = size.width - kMargin;
+    final double top = kMargin;
+    final double bottom = top + kHeight;
+
+    final path = Path()
+      ..moveTo(left + kTopRadius, top)
+      ..lineTo(position - kTopRadius, top)
+      ..relativeArcToPoint(
+        const Offset(kTopRadius, kTopRadius),
+        radius: const Radius.circular(kTopRadius),
+      )
+      ..relativeArcToPoint(
+        const Offset((kCircleRadius + kCircleMargin) * 2, 0.0),
+        radius: const Radius.circular(kCircleRadius + kCircleMargin),
+        clockwise: false,
+      )
+      ..relativeArcToPoint(
+        const Offset(kTopRadius, -kTopRadius),
+        radius: const Radius.circular(kTopRadius),
+      )
+      ..lineTo(right - kTopRadius, top)
+      ..relativeArcToPoint(
+        const Offset(kTopRadius, kTopRadius),
+        radius: const Radius.circular(kTopRadius),
+      )
+      ..lineTo(right, bottom)
+      ..relativeArcToPoint(
+        const Offset(-kBottomRadius, kBottomRadius),
+        radius: Radius.zero,
+      )
+      ..lineTo(left + kBottomRadius, bottom)
+      ..relativeArcToPoint(
+        const Offset(-kBottomRadius, 0),
+        radius: const Radius.circular(kBottomRadius),
+      )
+      ..lineTo(left, top + kTopRadius)
+      ..relativeArcToPoint(
+        const Offset(kTopRadius, -kTopRadius),
+        radius: const Radius.circular(kTopRadius),
+      );
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return false;
   }
 }
